@@ -1,27 +1,51 @@
-vector<int> prefix_function(string &s){
-    int n = (int)s.length();
-    vector<int> pi(n);
-    for(int i = 1;i < n;++i){
-        int j = pi[i - 1];
-        while(j > 0 && s[i] != s[j]) j = pi[j-1];
-        if(s[i] == s[j]) ++j;
-        pi[i] = j;
-    }
-    return pi;
-}
+// test problem: https://codeforces.com/contest/2209/problem/E
+struct KMP{
+    int n;
+    string s;
+    vector<int> pi;
+    vector<int> border;
 
-
-// number of times P is found int T
-int kmp_match(string &P, string &T){
-    auto pi = prefix_function(P);
-    int n = P.size(),nt = T.size(),k = 0,nmatch = 0;
-    for(int i = 0;i < nt;++i){
-        while(k > 0 && T[i] != P[k]) k = pi[k - 1];
-        if(P[k] == T[i]) ++k;
-        if(k == n){
-            ++nmatch;
-            k = pi[k - 1];
+    KMP(string s) : s(s){
+        n = s.size();
+        // KMP prefix function
+        pi = vector<int>(n, 0);
+        for(int i = 1;i < n;++i){
+            int match = pi[i - 1];
+            while(match > 0 && s[match] != s[i]){
+                match = pi[match - 1];
+            }
+            if(s[match] == s[i]){
+                ++match;
+            }
+            pi[i] = match;
+        }
+        // Borders (shortest suffix that is a prefix) for every prefix of s
+        border = vector<int>(n);
+        for(int i = 0;i < n;++i){
+            if(pi[i] == 0){
+                border[i] = i;
+            }else{
+                border[i] = border[ pi[i] - 1 ];
+            }
         }
     }
-    return nmatch;
-}
+
+    // number of times s occurs in T
+    int search(string T){
+        int ret = 0;
+        int match = 0;
+        for(char c : T){
+            while(match > 0 && s[match] != c){
+                match = pi[match - 1];
+            }
+            if(s[match] == c){
+                ++match;
+            }
+            if(match == n){
+                ++ret;
+                match = pi[match - 1];
+            }
+        }
+        return ret;
+    }
+};
