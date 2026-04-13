@@ -1,3 +1,4 @@
+// sample submission: https://atcoder.jp/contests/abc453/submissions/74928788
 template<typename T>
 struct PersistentSegmentTree{
     static const int MAX_NODES = 4500000;
